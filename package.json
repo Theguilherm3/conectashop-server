@@ -4,12 +4,17 @@
   "type": "module",
   "main": "index.js",
   "scripts": {
-    "start": "node index.js"
+    "start": "node index.js",
+    "start:grpc": "node grpc/server.js",
+    "test:rest": "bash test-rest.sh",
+    "test:grpc": "node grpc/test-client.js"
   },
   "author": "",
   "license": "ISC",
   "description": "",
   "dependencies": {
+    "@grpc/grpc-js": "^1.14.4",
+    "@grpc/proto-loader": "^0.8.1",
     "express": "^5.2.1"
   }
 }

@@ -1,53 +1,29 @@
 import express from "express";
 
+import {
+  logger,
+  validateHeaders,
+  validateBody,
+  notFoundHandler,
+  errorHandler,
+} from "./middleware.js";
+
+import { catalog } from "./catalog.js";
+import { config } from "./config.js";
+import { startGrpcServer } from "./grpc/server.js";
+
 const app = express();
 
-const catalog = {
-  "KB-100": {
-    sku: "KB-100",
-    name: "Teclado Mecânico",
-    unitPriceCents: 25990,
-    available: true,
-  },
+app.use(logger);
 
-  "MS-200": {
-    sku: "MS-200",
-    name: "Mouse Sem Fio",
-    unitPriceCents: 12990,
-    available: true,
-  },
+app.use("/api/v1", validateHeaders);
 
-  "HD-300": {
-    sku: "HD-300",
-    name: "Headset USB",
-    unitPriceCents: 19990,
-    available: true,
-  },
-
-  "MN-400": {
-    sku: "MN-400",
-    name: "Monitor 27",
-    unitPriceCents: 119990,
-    available: true,
-  },
-};
+app.use(express.json());
 
 app.get("/api/v1/products/:sku", (req, res) => {
-  const clientTeam = req.get("X-Client-Team");
+  const sku = req.params.sku;
   const requestId = req.get("X-Request-ID");
 
-  console.log(clientTeam, requestId);
-
-  if (!clientTeam || !requestId) {
-    return res.status(400).json({
-      code: "MISSING_REQUIRED_HEADER",
-      message: "Header obrigatório ausente",
-    });
-  }
-
-  res.set("X-Requset-ID", requestId);
-
-  const sku = req.params.sku;
   const product = catalog[sku];
 
   if (!product) {
@@ -61,6 +37,46 @@ app.get("/api/v1/products/:sku", (req, res) => {
   return res.status(200).json(product);
 });
 
-app.listen(8080, () => {
-  console.log("Server Online ouvindo");
+app.post("/api/v1/quotes", validateBody, (req, res) => {
+  const items = req.body.items;
+  const requestId = req.get("X-Request-ID");
+
+  let subtotalCents = 0;
+
+  items.forEach((item) => {
+    const product = catalog[item.sku];
+
+    subtotalCents += product.unitPriceCents * item.quantity;
+  });
+
+  let discountPercent = 0;
+
+  if (subtotalCents >= 100000) {
+    discountPercent = 10;
+  } else if (subtotalCents >= 50000) {
+    discountPercent = 5;
+  }
+
+  const discountCents = Math.floor((subtotalCents * discountPercent) / 100);
+
+  const totalCents = subtotalCents - discountCents;
+
+  return res.status(200).json({
+    requestId,
+    subtotalCents,
+    discountPercent,
+    discountCents,
+    totalCents,
+  });
 });
+
+app.use(notFoundHandler);
+app.use(errorHandler);
+
+app.listen(config.restPort, config.host, () => {
+  console.log(
+    `Servidor REST (${config.serverTeam}) online em http://${config.host}:${config.restPort} | log: ${config.logFile}`,
+  );
+});
+
+startGrpcServer();
