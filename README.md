@@ -1,6 +1,6 @@
-# ConectaShop Server — Equipe S03
+# ConectaShop Server — Equipe S1
 
-Servidores da equipe S03 para a dinâmica IntegraLab da disciplina de Sistemas Distribuídos. O projeto expõe dois serviços de uma loja fictícia, cada um em um protocolo:
+Servidores da equipe S1 para a dinâmica IntegraLab da disciplina de Sistemas Distribuídos. O projeto expõe dois serviços de uma loja fictícia, cada um em um protocolo:
 
 | Serviço             | Protocolo | O que faz                                         | Porta padrão |
 |---------------------|-----------|---------------------------------------------------|--------------|
@@ -21,8 +21,8 @@ npm start
 Ao subir, cada servidor imprime o endereço em que está escutando:
 
 ```
-Servidor REST (S03) online em http://0.0.0.0:8080 | log: logs/rest.log
-Servidor gRPC (S03) online em 0.0.0.0:50051 | log: logs/grpc.log
+Servidor REST (S1) online em http://0.0.0.0:8080 | log: logs/rest.log
+Servidor gRPC (S1) online em 0.0.0.0:50051 | log: logs/grpc.log
 ```
 
 Para subir somente o gRPC, use `npm run start:grpc`.
@@ -45,7 +45,7 @@ A configuração é feita por variáveis de ambiente. Todas são opcionais.
 | `HOST`          | `0.0.0.0`       | Interface de rede (`0.0.0.0` aceita conexões de todas)  |
 | `REST_PORT`     | `8080`          | Porta do servidor REST                                  |
 | `GRPC_PORT`     | `50051`         | Porta do servidor gRPC                                  |
-| `SERVER_TEAM`   | `S03`           | Código da equipe, usado nas respostas gRPC e nos logs   |
+| `SERVER_TEAM`   | `S1`           | Código da equipe, usado nas respostas gRPC e nos logs   |
 | `LOG_FILE`      | `logs/rest.log` | Arquivo de log das chamadas REST                        |
 | `GRPC_LOG_FILE` | `logs/grpc.log` | Arquivo de log das chamadas gRPC                        |
 
@@ -202,7 +202,7 @@ grpcurl -plaintext -proto grpc/shipping.proto -H "x-client-team: C01" \
   "request_id": "req-g2",
   "price_cents": "1800",
   "estimated_days": 2,
-  "server_team": "S03"
+  "server_team": "S1"
 }
 ```
 
@@ -245,14 +245,14 @@ Toda chamada recebida, com sucesso ou erro, é impressa no console e gravada em 
 REST (`logs/rest.log`):
 
 ```
-[2026-09-10T18:10:47.614Z] protocol=REST server=S03 client=C01 requestId=r1 operation=GET_PRODUCT input=KB-100 status=200 result=OK
+[2026-09-10T18:10:47.614Z] protocol=REST server=S1 client=C01 requestId=r1 operation=GET_PRODUCT input=KB-100 status=200 result=OK
 ```
 
 gRPC (`logs/grpc.log`):
 
 ```
-[2026-09-10T18:28:31.639Z] protocol=GRPC server=S03 client=C01 requestId=req-g2 operation=CalculateShipping weight=1500 zone=LOCAL mode=STANDARD status=OK request_id=req-g2 price_cents=1800 estimated_days=2 server_team=S03 result=OK
-[2026-09-10T18:28:31.647Z] protocol=GRPC server=S03 client=C01 requestId=req-g5 operation=CalculateShipping weight=0 zone=LOCAL mode=STANDARD status=INVALID_ARGUMENT error=INVALID_WEIGHT result=ERROR
+[2026-09-10T18:28:31.639Z] protocol=GRPC server=S1 client=C01 requestId=req-g2 operation=CalculateShipping weight=1500 zone=LOCAL mode=STANDARD status=OK request_id=req-g2 price_cents=1800 estimated_days=2 server_team=S1 result=OK
+[2026-09-10T18:28:31.647Z] protocol=GRPC server=S1 client=C01 requestId=req-g5 operation=CalculateShipping weight=0 zone=LOCAL mode=STANDARD status=INVALID_ARGUMENT error=INVALID_WEIGHT result=ERROR
 ```
 
 Quando o cliente não envia a equipe ou o ID da requisição, o campo aparece como `-`.
